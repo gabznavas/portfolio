@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
@@ -38,6 +39,7 @@ func main() {
 	var envs map[string]string = loadEnvs()
 
 	router := gin.Default()
+	router.Use(cors.Default())
 
 	locationHdl := locationHandler.NewLocationHandler()
 	nearbyHdl := nearbyHandler.NewNearbyHandler()
