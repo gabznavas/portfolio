@@ -25,7 +25,7 @@ export default function Home() {
       return;
     }
 
-    route.push('/map')
+    route.push(`/map?username=${username}`)
   }
 
   return (
