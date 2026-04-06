@@ -9,7 +9,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 
-	redisrepository "api/database/redis"
+	redisrepository "api/database/redis_repository"
 	locationHandler "api/handlers/location"
 	nearbyHandler "api/handlers/nearby"
 )

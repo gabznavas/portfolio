@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	redisrepository "api/database/redis"
+	"api/database/models"
+	redisrepository "api/database/redis_repository"
 	handlers "api/handlers/dtos"
 	"fmt"
 	"net/http"
@@ -36,7 +37,20 @@ func (h *locationHandlerImpl) CreateLocation(ctx *gin.Context) {
 	username := fmt.Sprintf("users:%s", body.Username)
 
 	h.rou.PutOnlineUser(ctx, username)
-	h.rlr.PutLocation(ctx, username, body.Latitude, body.Longitude)
+	h.rlr.PutLocation(ctx, models.Location{
+		Username:   username,
+		Latitude:   body.Latitude,
+		Longintude: body.Longitude,
+	})
+
+	r, err := h.rou.ListOnlineUsers(ctx)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		for _, onlineUser := range r {
+			fmt.Println(onlineUser)
+		}
+	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
 		"username": username,
