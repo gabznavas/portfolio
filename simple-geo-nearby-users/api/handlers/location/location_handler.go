@@ -1,22 +1,28 @@
 package handlers
 
 import (
+	redisrepository "api/database/redis"
 	handlers "api/handlers/dtos"
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 )
 
 type LocationHandler interface {
 	CreateLocation(ctx *gin.Context)
 }
 
-type locationHandlerImpl struct{}
+type locationHandlerImpl struct {
+	rlr redisrepository.RedisLocationRepository
+	rou redisrepository.RedisOnlineUsers
+}
 
-func NewLocationHandler() LocationHandler {
-	return &locationHandlerImpl{}
+func NewLocationHandler(
+	rlr redisrepository.RedisLocationRepository,
+	rou redisrepository.RedisOnlineUsers,
+) LocationHandler {
+	return &locationHandlerImpl{rlr, rou}
 }
 
 func (h *locationHandlerImpl) CreateLocation(ctx *gin.Context) {
@@ -27,32 +33,10 @@ func (h *locationHandlerImpl) CreateLocation(ctx *gin.Context) {
 		})
 	}
 
-	rdb := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
-
 	username := fmt.Sprintf("users:%s", body.Username)
 
-	cmd := rdb.SAdd(ctx, "online_users", username)
-	err := cmd.Err()
-	if err != nil {
-		fmt.Println(err.Error())
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-	}
-
-	cmd = rdb.HSet(ctx, username, map[string]interface{}{
-		"lat":  body.Latitude,
-		"long": body.Longitude,
-	})
-	err = cmd.Err()
-	if err != nil {
-		fmt.Println(err.Error())
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-	}
+	h.rou.PutOnlineUser(ctx, username)
+	h.rlr.PutLocation(ctx, username, body.Latitude, body.Longitude)
 
 	ctx.JSON(http.StatusCreated, gin.H{
 		"username": username,

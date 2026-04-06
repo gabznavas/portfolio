@@ -7,13 +7,16 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 
+	redisrepository "api/database/redis"
 	locationHandler "api/handlers/location"
 	nearbyHandler "api/handlers/nearby"
 )
 
 const (
 	HTTP_SERVER_PORT = "HTTP_SERVER_PORT"
+	REDIS_ADDR       = "REDIS_ADDR"
 )
 
 func loadEnvs() map[string]string {
@@ -24,13 +27,18 @@ func loadEnvs() map[string]string {
 
 	var (
 		httpServerPort = os.Getenv(HTTP_SERVER_PORT)
+		redisAddress   = os.Getenv(REDIS_ADDR)
 	)
 	if httpServerPort == "" {
 		panic("needed " + HTTP_SERVER_PORT + " on .env")
 	}
+	if redisAddress == "" {
+		panic("needed " + REDIS_ADDR + " on .env")
+	}
 
 	return map[string]string{
 		HTTP_SERVER_PORT: httpServerPort,
+		REDIS_ADDR:       redisAddress,
 	}
 
 }
@@ -41,7 +49,17 @@ func main() {
 	router := gin.Default()
 	router.Use(cors.Default())
 
-	locationHdl := locationHandler.NewLocationHandler()
+	rdb := redis.NewClient(&redis.Options{
+		Addr: envs["REDIS_ADDR"],
+	})
+
+	locationRepo := redisrepository.NewRedisLocationRepository(rdb)
+	onlineUsersRepo := redisrepository.NewRedisOnlineUsers(rdb)
+
+	locationHdl := locationHandler.NewLocationHandler(
+		locationRepo,
+		onlineUsersRepo,
+	)
 	nearbyHdl := nearbyHandler.NewNearbyHandler()
 
 	router.POST("/location", locationHdl.CreateLocation)
