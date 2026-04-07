@@ -63,6 +63,7 @@ func main() {
 	nearbyHdl := nearbyHandler.NewNearbyHandler()
 
 	router.POST("/location", locationHdl.CreateLocation)
+	router.GET("/location", locationHdl.ListLocationByRange)
 	router.GET("/nearby", nearbyHdl.ListNearbyByPosition)
 
 	router.Run(fmt.Sprintf(":%s", envs[HTTP_SERVER_PORT]))
