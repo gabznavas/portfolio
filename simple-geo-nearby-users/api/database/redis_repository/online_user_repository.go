@@ -22,14 +22,19 @@ func NewRedisOnlineUsers(rdb *redis.Client) RedisOnlineUsers {
 	return &redisLocationRepositoryImpl{rdb}
 }
 
-func (r *redisLocationRepositoryImpl) PutOnlineUser(ctx context.Context, onlineUser models.OnlineUser) (success bool, err error) {
+func (r *redisLocationRepositoryImpl) PutOnlineUser(
+	ctx context.Context,
+	onlineUser models.OnlineUser,
+) (success bool, err error) {
 	cmd := r.rdb.SAdd(ctx, Key, onlineUser)
 	err = cmd.Err()
 	success = err == nil
 	return
 }
 
-func (r *redisLocationRepositoryImpl) ListOnlineUsers(ctx context.Context) (onlineUsers []models.OnlineUser, err error) {
+func (r *redisLocationRepositoryImpl) ListOnlineUsers(
+	ctx context.Context,
+) (onlineUsers []models.OnlineUser, err error) {
 	cmd := r.rdb.SMembers(ctx, "online_users")
 	onlineUsers, err = cmd.Result()
 	return
