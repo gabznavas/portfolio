@@ -1,0 +1,13 @@
+POST http://localhost:8081/location HTTP/1.1
+content-type: application/json
+
+{
+    "username": "Batman",
+    "latitude": -22.000,
+    "longitude": -51.222
+}
+
+
+###
+
+GET http://localhost:8081/location?latitude=-22.000&longitude=-51.222&radiusKm=100 HTTP/1.1
