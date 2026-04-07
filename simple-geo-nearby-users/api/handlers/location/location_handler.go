@@ -4,7 +4,7 @@ import (
 	"api/database/models"
 	redisrepository "api/database/redis_repository"
 	handlers "api/handlers/dtos"
-	"fmt"
+	helpers "api/handlers/helpers"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +12,7 @@ import (
 
 type LocationHandler interface {
 	CreateLocation(ctx *gin.Context)
+	ListLocationByRange(ctx *gin.Context)
 }
 
 type locationHandlerImpl struct {
@@ -34,27 +35,50 @@ func (h *locationHandlerImpl) CreateLocation(ctx *gin.Context) {
 		})
 	}
 
-	username := fmt.Sprintf("users:%s", body.Username)
+	username := "user:" + body.Username
 
 	h.rou.PutOnlineUser(ctx, username)
 	h.rlr.PutLocation(ctx, models.Location{
-		Username:   username,
-		Latitude:   body.Latitude,
-		Longintude: body.Longitude,
+		Username:  username,
+		Latitude:  body.Latitude,
+		Longitude: body.Longitude,
 	})
-
-	r, err := h.rou.ListOnlineUsers(ctx)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		for _, onlineUser := range r {
-			fmt.Println(onlineUser)
-		}
-	}
-
 	ctx.JSON(http.StatusCreated, gin.H{
 		"username": username,
 		"lat":      body.Latitude,
 		"long":     body.Longitude,
+	})
+}
+
+func (h *locationHandlerImpl) ListLocationByRange(ctx *gin.Context) {
+	latitude, err := helpers.ParseQueryFloat(ctx, "latitude")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
+	longitude, err := helpers.ParseQueryFloat(ctx, "longitude")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
+	radiusKm, err := helpers.ParseQueryFloat(ctx, "radiusKm")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
+
+	locations, err := h.rlr.GetLocationsByPosition(ctx, latitude, longitude, &radiusKm)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"locations": locations,
 	})
 }
