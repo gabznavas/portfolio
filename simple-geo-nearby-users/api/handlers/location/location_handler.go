@@ -6,6 +6,7 @@ import (
 	handlers "api/handlers/dtos"
 	helpers "api/handlers/helpers"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -70,6 +71,8 @@ func (h *locationHandlerImpl) ListLocationByRange(ctx *gin.Context) {
 		})
 	}
 
+	// TODO: add services here
+
 	locations, err := h.rlr.GetLocationsByPosition(ctx, latitude, longitude, &radiusKm)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -78,7 +81,14 @@ func (h *locationHandlerImpl) ListLocationByRange(ctx *gin.Context) {
 		return
 	}
 
+	removedPrefixRedix := []*models.Location{}
+	for _, location := range locations {
+		usernameWithoutUserPrefix := strings.Replace(location.Username, "user:", "", 1)
+		location.Username = usernameWithoutUserPrefix
+		removedPrefixRedix = append(removedPrefixRedix, location)
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
-		"locations": locations,
+		"locations": removedPrefixRedix,
 	})
 }
