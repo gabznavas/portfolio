@@ -31,19 +31,26 @@ export default function Home() {
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
 
-      <Card>
+      <Card className="w-[500px] p-10">
         <CardHeader>
-          <CardTitle>Olá, seja bem vindo(a)</CardTitle>
+          <CardTitle>
+            <span className="font-bold">Olá, seja bem vindo(a)</span>
+          </CardTitle>
           <CardDescription>Entre com o nome de usuário</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={e => handleOnSubmit(e)}>
-            <div>
-              <Label>Nome de usuário</Label>
+          <form 
+            className="flex flex-col gap-2"
+            onSubmit={e => handleOnSubmit(e)}>
+            <div className="flex flex-col gap-2">
+              <Label>
+                <span  className="font-normal">
+                  Nome de usuário
+                </span>
+              </Label>
               <Input value={username} onChange={e => setUsername(e.target.value)} />
             </div>
-
-            <Button type="submit">Entrar!</Button>
+            <Button type="submit" className="cursor-pointer">Entrar!</Button>
           </form>
         </CardContent>
       </Card>

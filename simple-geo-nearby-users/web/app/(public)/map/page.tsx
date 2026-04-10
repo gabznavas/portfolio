@@ -1,6 +1,7 @@
 'use client'
 
-import { createLocation } from '@/service/location/create-location';
+import { createLocation } from '@/service/location/create-location/create-location';
+import { listLocationByPosition } from '@/service/location/list-location-by-position/list-location-by-position';
 import maplibregl from 'maplibre-gl'
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef } from 'react'
@@ -9,7 +10,6 @@ const FIVE_SECONDS = 5000
 
 export default function MapPage() {
   const searchParams = useSearchParams()
-
 
   const mapRef = useRef<HTMLDivElement | null>(null);
 
@@ -29,6 +29,13 @@ export default function MapPage() {
             latitude: lat,
             longitude : long
           })
+
+          const locations = await listLocationByPosition({
+            lat,
+            long,
+            rangeKm: 50
+          })
+          console.log('locations', locations)
         },
         err => {
           console.error(err)
