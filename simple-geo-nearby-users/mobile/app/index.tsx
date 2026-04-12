@@ -15,7 +15,12 @@ export default function ModalScreen() {
       return
     }
 
-    router.push('/map')
+    router.push({
+      pathname: '/map',
+      params: {
+        username
+      }
+    })
   }
 
   return (
