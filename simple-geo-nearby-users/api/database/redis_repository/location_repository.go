@@ -32,7 +32,12 @@ func (r *redisLocationRepositoryImpl) PutLocation(ctx context.Context, location 
 	return
 }
 
-func (r *redisLocationRepositoryImpl) GetLocationsByPosition(ctx context.Context, latitude, longitude float64, radiusKm *float64) (locations []*models.Location, err error) {
+func (r *redisLocationRepositoryImpl) GetLocationsByPosition(
+	ctx context.Context,
+	latitude,
+	longitude float64,
+	radiusKm *float64,
+) (locations []*models.Location, err error) {
 	locations = []*models.Location{}
 	radius := 50.0
 	if radiusKm != nil {
