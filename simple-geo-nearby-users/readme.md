@@ -11,4 +11,9 @@ Techs:
   * Database: Redis
   * Containers: Docker
 
+- [x] Posição atual nos multiplos aparelhos
+- [ ] Posição atual no próprio dispositivo
+- [ ] Removendo posição no Redis quando sair do App/Web
+- [ ] Remover posição que não se atualiza por mais de 1h no Redis
+
 ---
